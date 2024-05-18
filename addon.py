@@ -1,3 +1,15 @@
+bl_info = {
+    "name": "PoseCapture",
+    "author": "donkey0319",
+    "version": (1, 0),
+    "blender": (2, 80, 0),
+    "location": "View3D > Add > Mesh > New Object",
+    "description": "Capture actions of video and convert to armature actions",
+    "warning": "",
+    "doc_url": "",
+    "category": "Animation",
+}
+
 import bpy
 import os
 import sys
