@@ -7,19 +7,17 @@ import sys
 import os
 import time
 
-dir = os.path.dirname(bpy.data.filepath)
-if not dir in sys.path:
-    sys.path.append(dir)
+# dir = os.path.dirname(bpy.data.filepath)
+# if not dir in sys.path:
+#     sys.path.append(dir)
     
-import lib_rotation
-# import def_PoseEstimator
+# import lib_rotation
+# import imp
+# imp.reload(lib_rotation)
+# from lib_rotation import *
 
-import imp
-imp.reload(lib_rotation)
-# imp.reload(def_PoseEstimator)
-
+from . import lib_rotation
 from lib_rotation import *
-# from def_PoseEstimator import *
 
 # =============================== FINISH IMPORTING STUFF ===============================
 

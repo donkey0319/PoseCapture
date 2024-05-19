@@ -5,18 +5,20 @@ import os
 import numpy as np
 import json
 
-dir = os.path.dirname(bpy.data.filepath)
-if not dir in sys.path:
-    sys.path.append(dir)
+# dir = os.path.dirname(bpy.data.filepath)
+# if not dir in sys.path:
+#     sys.path.append(dir)
 
-import def_Bone
-import def_constants
+# import def_Bone
+# import def_constants
+# import imp
+# imp.reload(def_Bone)
+# imp.reload(def_constants)
+# from def_Bone import *
+# from def_constants import *
 
-# this next part forces a reload in case you edit the source after you first start the blender session
-import imp
-imp.reload(def_Bone)
-imp.reload(def_constants)
-
+from . import def_Bone
+from . import def_constants
 from def_Bone import *
 from def_constants import *
 

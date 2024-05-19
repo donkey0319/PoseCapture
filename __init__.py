@@ -25,6 +25,7 @@ import sys
 # from execute import read_video_and_set_pose
 
 from . import execute
+from execute import read_video_and_set_pose
 
 # ==============================================================================
 
