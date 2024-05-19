@@ -14,16 +14,17 @@ import bpy
 import os
 import sys
 
-dir = os.path.dirname(bpy.data.filepath)
-if not dir in sys.path:
-    sys.path.append(dir)
-    
-import execute
+# if bpy.data.is_saved and bpy.data.filepath:
+#     dir = os.path.dirname(bpy.data.filepath)
+#     if dir not in sys.path:
+#             sys.path.append(dir)
 
-import imp
-imp.reload(execute)
+# import execute
+# import imp
+# imp.reload(execute)
+# from execute import read_video_and_set_pose
 
-from execute import read_video_and_set_pose
+from . import execute
 
 # ==============================================================================
 
