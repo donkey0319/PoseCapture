@@ -2,7 +2,6 @@ import bpy
 import mediapipe as mp
 import cv2
 import numpy as np
-import json
 import sys
 import os
 import time
@@ -17,9 +16,11 @@ import time
 # from lib_rotation import *
 
 from . import lib_rotation
-from lib_rotation import *
 
-# =============================== FINISH IMPORTING STUFF ===============================
+# =============================== FINISH IMPORTING STUFF =============================== N8M3WWGAG8UD
+
+def print_hello():
+    print("hello")
 
 def read_video_and_set_pose(video_path = 'videos/yuchieh5.mp4', armature_selector = None):
     frame_number = 0
@@ -48,7 +49,7 @@ def read_video_and_set_pose(video_path = 'videos/yuchieh5.mp4', armature_selecto
                 if i < 39:  # Ensure we only process the first 39 landmarks.
                     pose_array[i] = [landmark.x, landmark.y, landmark.z, landmark.visibility, landmark.presence]
 
-            MP_set_rotation_for_all_bones_in_frame(armature_selector, frame_number, pose_array)
+            lib_rotation.MP_set_rotation_for_all_bones_in_frame(armature_selector, frame_number, pose_array)
             frame_number += 1
 
         cv2.imshow('MediaPipe Pose', image)
@@ -57,3 +58,7 @@ def read_video_and_set_pose(video_path = 'videos/yuchieh5.mp4', armature_selecto
 
     cap.release()
     cv2.destroyAllWindows()
+
+
+
+

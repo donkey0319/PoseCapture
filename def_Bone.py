@@ -5,8 +5,7 @@ import sys
 import os
 from mathutils import Quaternion, Vector, Matrix
 
-from . import def_constants
-from def_constants import *
+from . def_constants import *
 
 class Bone:
     # constructor

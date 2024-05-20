@@ -24,8 +24,9 @@ import sys
 # imp.reload(execute)
 # from execute import read_video_and_set_pose
 
-from . import execute
-from execute import read_video_and_set_pose
+from . execute_file import print_hello
+from . execute_file import read_video_and_set_pose
+
 
 # ==============================================================================
 
