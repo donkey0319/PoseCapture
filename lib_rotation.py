@@ -197,7 +197,6 @@ def MP_set_rotation_for_all_bones(armature_selector, mediapipe_output):
         else:
             bone.set_bone_rotation_around_world_space_vector([1, 0, 0], -30)
     
-    '''
     # align limbs to world vector
     if mediapipe_output[def_constants.MP_SHOULDER_L][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.upperarm_L, vector=rotation_list[def_constants.MP_SHOULDER_L_ROTATION])
@@ -234,7 +233,7 @@ def MP_set_rotation_for_all_bones(armature_selector, mediapipe_output):
 
     if mediapipe_output[def_constants.MP_TOE_R][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.foot_R, vector=rotation_list[def_constants.MP_FOOT_R_ROTATION])
-    '''
+    
 
 def MP_set_rotation_for_all_bones_in_frame(armature_selector, frame_number, mediapipe_output):
     # Enable auto keyframing
