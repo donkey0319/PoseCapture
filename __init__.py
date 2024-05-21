@@ -24,7 +24,6 @@ import sys
 # imp.reload(execute)
 # from execute import read_video_and_set_pose
 
-from . execute_file import print_hello
 from . execute_file import read_video_and_set_pose
 
 
@@ -50,7 +49,6 @@ class OpenMP4File(bpy.types.Operator):
     def execute(self, context):
         context.scene.file_path = self.filepath
         read_video_and_set_pose(context.scene.file_path, context.scene.armature_selector)
-        # print_hello()
         return {'FINISHED'}
 
     def invoke(self, context, event):

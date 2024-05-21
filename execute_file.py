@@ -52,6 +52,7 @@ def read_video_and_set_pose(video_path = None, armature_selector = None):
             lib_rotation.MP_set_rotation_for_all_bones_in_frame(armature_selector, frame_number, pose_array)
             frame_number += 1
 
+        cv2.putText(image, "Press ESC to interrupt", (10, 30), cv2.FONT_HERSHEY_COMPLEX, 1.5, (220, 220, 220), 2)
         cv2.imshow('MediaPipe Pose', image)
         if cv2.waitKey(30) & 0xFF == 27:
             break
