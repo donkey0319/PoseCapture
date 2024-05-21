@@ -8,7 +8,6 @@ import json
 # dir = os.path.dirname(bpy.data.filepath)
 # if not dir in sys.path:
 #     sys.path.append(dir)
-
 # import def_Bone
 # import def_constants
 # import imp
@@ -25,6 +24,7 @@ from . import def_constants
 
 def convert_mediapipe_output_into_rotation_list(mediapipe_output):
 
+    # Sanity Check
     if mediapipe_output.shape != (39, 5):
         print("mediapipe_output.shape: ", mediapipe_output.shape)
         raise ValueError("mediapipe_output.shape != (39, 5), Please check your video!")
@@ -40,77 +40,71 @@ def convert_mediapipe_output_into_rotation_list(mediapipe_output):
         
     mediapipe_xyz = np.array(mediapipe_xyz)
     
+    # Mediapipe y-Offset    
     mediapipe_xyz[:, 1] *= 0.2
+    
+    # ============================================ LEFT LIMBS ===========================================================
     
     # Set up shoulder_L_rotation
     shoulder_L_rotation = mediapipe_xyz[def_constants.MP_ELBOW_L] - mediapipe_xyz[def_constants.MP_SHOULDER_L]
-    # normalize shoudler_L_rotation
     shoulder_L_rotation = shoulder_L_rotation / np.linalg.norm(shoulder_L_rotation)
 
     # Set up elbow_L_rotation
     elbow_L_rotation = mediapipe_xyz[def_constants.MP_HAND_L] - mediapipe_xyz[def_constants.MP_ELBOW_L]
-    # normalize elbow_L_rotation
     elbow_L_rotation = elbow_L_rotation / np.linalg.norm(elbow_L_rotation)
 
     # Set up hand_L_rotation
     hand_L_midpoint = (mediapipe_xyz[def_constants.MP_FINGER1_L] + mediapipe_xyz[def_constants.MP_FINGER2_L]) / 2
     hand_L_rotation = hand_L_midpoint - mediapipe_xyz[def_constants.MP_HAND_L]
-    # normalize hand_L_rotation
     hand_L_rotation = hand_L_rotation / np.linalg.norm(hand_L_rotation)
 
     # Set up hips_L_rotation
     hips_L_rotation = mediapipe_xyz[def_constants.MP_KNEES_L] - mediapipe_xyz[def_constants.MP_HIPS_L]
-    # normalize hips_L_rotation
     hips_L_rotation = hips_L_rotation / np.linalg.norm(hips_L_rotation)
 
     # Set up knee_L_rotation
     knee_L_rotation = mediapipe_xyz[def_constants.MP_ANKLE_L] - mediapipe_xyz[def_constants.MP_KNEES_L]
-    # normalize knee_L_rotation
     knee_L_rotation = knee_L_rotation / np.linalg.norm(knee_L_rotation)
 
     # Set up foot_L_rotation
     foot_L_rotation = mediapipe_xyz[def_constants.MP_TOE_L] - mediapipe_xyz[def_constants.MP_ANKLE_L]
-    # normalize foot_L_rotation
     foot_L_rotation = foot_L_rotation / np.linalg.norm(foot_L_rotation)
 
-    # =======================================================================================================
+    # ============================================ RIGHT LIMBS ===========================================================
 
     # Set up shoulder_L_rotation
     shoulder_R_rotation = mediapipe_xyz[def_constants.MP_ELBOW_R] - mediapipe_xyz[def_constants.MP_SHOULDER_R]
-    # normalize shoudler_L_rotation
     shoulder_R_rotation = shoulder_R_rotation / np.linalg.norm(shoulder_R_rotation)
 
     # Set up elbow_L_rotation
     elbow_R_rotation = mediapipe_xyz[def_constants.MP_HAND_R] - mediapipe_xyz[def_constants.MP_ELBOW_R]
-    # normalize elbow_L_rotation
     elbow_R_rotation = elbow_R_rotation / np.linalg.norm(elbow_R_rotation)
 
     # Set up hand_L_rotation
     hand_R_midpoint = (mediapipe_xyz[def_constants.MP_FINGER1_R] + mediapipe_xyz[def_constants.MP_FINGER2_R]) / 2
     hand_R_rotation = hand_R_midpoint - mediapipe_xyz[def_constants.MP_HAND_R]
-    # normalize hand_L_rotation
     hand_R_rotation = hand_R_rotation / np.linalg.norm(hand_R_rotation)
 
     # Set up hips_L_rotation
     hips_R_rotation = mediapipe_xyz[def_constants.MP_KNEES_R] - mediapipe_xyz[def_constants.MP_HIPS_R]
-    # normalize hips_L_rotation
     hips_R_rotation = hips_R_rotation / np.linalg.norm(hips_R_rotation)
 
     # Set up knee_L_rotation
     knee_R_rotation = mediapipe_xyz[def_constants.MP_ANKLE_R] - mediapipe_xyz[def_constants.MP_KNEES_R]
-    # normalize knee_L_rotation
     knee_R_rotation = knee_R_rotation / np.linalg.norm(knee_R_rotation)
 
     # Set up foot_L_rotation
     foot_R_rotation = mediapipe_xyz[def_constants.MP_TOE_R] - mediapipe_xyz[def_constants.MP_ANKLE_R]
-    # normalize foot_L_rotation
     foot_R_rotation = foot_R_rotation / np.linalg.norm(foot_R_rotation)
     
-    # Set up root_rotation
-    spine_midpoint = (mediapipe_xyz[def_constants.MP_HIPS_L] + mediapipe_xyz[def_constants.MP_HIPS_R]) / 2
-    spine3_midpoint = (mediapipe_xyz[def_constants.MP_SHOULDER_L] + mediapipe_xyz[def_constants.MP_SHOULDER_R]) / 2
-    root_rotation = spine3_midpoint - spine_midpoint
-    root_rotation = root_rotation / np.linalg.norm(root_rotation)
+    # ============================================ SPINE ===========================================================
+    
+    # Set up root_rotation    
+    root_x_rotation = mediapipe_xyz[def_constants.MP_HIPS_L] - mediapipe_xyz[def_constants.MP_HIPS_R]
+    root_x_rotation = root_x_rotation / np.linalg.norm(root_x_rotation)
+    
+    chest_x_rotation = mediapipe_xyz[def_constants.MP_SHOULDER_L] - mediapipe_xyz[def_constants.MP_SHOULDER_R]
+    chest_x_rotation = chest_x_rotation / np.linalg.norm(chest_x_rotation)
     
     return [shoulder_L_rotation, 
             elbow_L_rotation, 
@@ -124,7 +118,8 @@ def convert_mediapipe_output_into_rotation_list(mediapipe_output):
             hips_R_rotation, 
             knee_R_rotation, 
             foot_R_rotation,
-            root_rotation
+            root_x_rotation,
+            chest_x_rotation
             ]
 
 def set_rotation_for_single_bone(target_armature_name, bone_name, vector):    
@@ -142,6 +137,21 @@ def set_rotation_for_single_bone(target_armature_name, bone_name, vector):
     except:
         return
 
+def set_face_direction_for_single_bone(target_armature_name, bone_name, vector):    
+    # open bone class
+    try:
+        bone = def_Bone.Bone(bone_name=bone_name, armature_name=target_armature_name)
+        
+        # get y-axis of upper_arm.L
+        bone.set_bone_face_to_world_vector(world_vector = vector)  
+        
+        # set bone rotation to current keyframe
+        bone.insert_rotation_to_current_keyframe()
+        return
+    
+    except:
+        return
+
 def MP_set_rotation_for_all_bones(armature_selector, mediapipe_output):
 
     def ease_in_out_lerp(a, b, t):
@@ -149,13 +159,24 @@ def MP_set_rotation_for_all_bones(armature_selector, mediapipe_output):
         t = t * t * (3 - 2 * t)
         return a + (b - a) * t
     
+    def lerp(a, b, t):
+        return a + (b - a) * t
+    
     rotation_list = convert_mediapipe_output_into_rotation_list(mediapipe_output)
     
-    # set rotation of spines
-    # set_rotation_for_single_bone(bone_name="spine", vector=rotation_list[MP_ROOT_ROTATION])
-    # set_rotation_for_single_bone(bone_name="spine.001", vector=rotation_list[MP_ROOT_ROTATION])
-    set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_1, vector=rotation_list[def_constants.MP_ROOT_ROTATION])
-    set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_2, vector=rotation_list[def_constants.MP_ROOT_ROTATION])
+    # set rotation of spines    
+    # spine_rotation_check = mediapipe_output[def_constants.MP_SHOULDER_R][def_constants.PRESENCE] > 0.5 and armature_selector.pelvis
+    # spine_rotation_check = spine_rotation_check and mediapipe_output[def_constants.MP_SHOULDER_L][def_constants.PRESENCE] > 0.5 and armature_selector.spine_0
+    # spine_rotation_check = spine_rotation_check and mediapipe_output[def_constants.MP_HIPS_L][def_constants.PRESENCE] > 0.5 and armature_selector.spine_1
+    # spine_rotation_check = spine_rotation_check and mediapipe_output[def_constants.MP_HIPS_R][def_constants.PRESENCE] > 0.5 and armature_selector.spine_2
+    
+
+    spine0_vector = lerp(rotation_list[def_constants.MP_ROOT_ROTATION], rotation_list[def_constants.MP_CHEST_ROTATION], 0.333)
+    spine1_vector = lerp(rotation_list[def_constants.MP_ROOT_ROTATION], rotation_list[def_constants.MP_CHEST_ROTATION], 0.666)
+    set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.pelvis, vector=rotation_list[def_constants.MP_ROOT_ROTATION])
+    set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_0, vector=spine0_vector)
+    set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_1, vector=spine1_vector)
+    set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_2, vector=rotation_list[def_constants.MP_CHEST_ROTATION])
     
     # rotate shoudler
     if mediapipe_output[def_constants.MP_SHOULDER_L][def_constants.PRESENCE] > 0.5 and armature_selector.shoulder_L:
@@ -176,6 +197,7 @@ def MP_set_rotation_for_all_bones(armature_selector, mediapipe_output):
         else:
             bone.set_bone_rotation_around_world_space_vector([1, 0, 0], -30)
     
+    '''
     # align limbs to world vector
     if mediapipe_output[def_constants.MP_SHOULDER_L][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.upperarm_L, vector=rotation_list[def_constants.MP_SHOULDER_L_ROTATION])
@@ -212,6 +234,7 @@ def MP_set_rotation_for_all_bones(armature_selector, mediapipe_output):
 
     if mediapipe_output[def_constants.MP_TOE_R][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.foot_R, vector=rotation_list[def_constants.MP_FOOT_R_ROTATION])
+    '''
 
 def MP_set_rotation_for_all_bones_in_frame(armature_selector, frame_number, mediapipe_output):
     # Enable auto keyframing

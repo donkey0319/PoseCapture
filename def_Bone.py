@@ -5,7 +5,6 @@ import sys
 import os
 from mathutils import Quaternion, Vector, Matrix
 
-from . def_constants import *
 
 class Bone:
     # constructor
@@ -37,6 +36,36 @@ class Bone:
         # normalize cross_product
         cross_product = cross_product / np.linalg.norm(cross_product)
         dot_product = np.dot(y_axis_world, world_vector)
+        degrees = np.degrees(np.arccos(dot_product))
+        
+        cross_product = world_2_pose @ cross_product
+        
+        bone.rotation_quaternion = self.axis_angle_to_quaternion(cross_product, degrees)
+        
+    def set_bone_face_to_world_vector(self, world_vector):
+        # initialize bone rotation to 0
+        bpy.ops.object.mode_set(mode='POSE')
+        bone = bpy.context.object.pose.bones[self.bone_name]
+        bone.rotation_quaternion = self.axis_angle_to_quaternion(np.array([1, 0, 0]), 0)
+        # Update the scene to reflect the new bone alignment
+        bpy.context.view_layer.update()
+        
+        # get z axis in pose space
+        x_axis_world = bone.matrix.col[0].to_3d()
+        
+        # turn world_vector into pose_space
+        armature = bpy.data.objects[self.armature_name]
+        global_x_axis_vector = bone.matrix.col[0].to_3d()
+        global_y_axis_vector = bone.matrix.col[1].to_3d()
+        global_z_axis_vector = bone.matrix.col[2].to_3d()
+        
+        world_2_pose = np.array([global_x_axis_vector, global_y_axis_vector, global_z_axis_vector])
+        
+        world_vector = world_vector / np.linalg.norm(world_vector)
+        cross_product = np.cross(x_axis_world, world_vector)
+        # normalize cross_product
+        cross_product = cross_product / np.linalg.norm(cross_product)
+        dot_product = np.dot(x_axis_world, world_vector)
         degrees = np.degrees(np.arccos(dot_product))
         
         cross_product = world_2_pose @ cross_product

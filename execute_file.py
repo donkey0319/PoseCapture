@@ -22,7 +22,7 @@ from . import lib_rotation
 def print_hello():
     print("hello")
 
-def read_video_and_set_pose(video_path = 'videos/yuchieh5.mp4', armature_selector = None):
+def read_video_and_set_pose(video_path = None, armature_selector = None):
     frame_number = 0
 
     mp_pose = mp.solutions.pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
@@ -49,7 +49,7 @@ def read_video_and_set_pose(video_path = 'videos/yuchieh5.mp4', armature_selecto
                 if i < 39:  # Ensure we only process the first 39 landmarks.
                     pose_array[i] = [landmark.x, landmark.y, landmark.z, landmark.visibility, landmark.presence]
 
-            lib_rotation.MP_set_rotation_for_all_bones_in_frame(armature_selector, frame_number, pose_array)
+            # lib_rotation.MP_set_rotation_for_all_bones_in_frame(armature_selector, frame_number, pose_array)
             frame_number += 1
 
         cv2.imshow('MediaPipe Pose', image)
