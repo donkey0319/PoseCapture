@@ -99,12 +99,21 @@ def convert_mediapipe_output_into_rotation_list(mediapipe_output):
     
     # ============================================ SPINE ===========================================================
     
-    # Set up root_rotation    
+    # Set up root_rotation (pelvis) 
     root_x_rotation = mediapipe_xyz[def_constants.MP_HIPS_L] - mediapipe_xyz[def_constants.MP_HIPS_R]
     root_x_rotation = root_x_rotation / np.linalg.norm(root_x_rotation)
     
+    # chest bone
     chest_x_rotation = mediapipe_xyz[def_constants.MP_SHOULDER_L] - mediapipe_xyz[def_constants.MP_SHOULDER_R]
     chest_x_rotation = chest_x_rotation / np.linalg.norm(chest_x_rotation)
+    
+    # head bone
+    head_x_rotation = mediapipe_xyz[def_constants.MP_HEAD_L] - mediapipe_xyz[def_constants.MP_HEAD_R]
+    head_x_rotation = head_x_rotation / np.linalg.norm(head_x_rotation)
+    
+    eyebrow_midpoint = (mediapipe_xyz[def_constants.MP_HEAD_L] + mediapipe_xyz[def_constants.MP_HEAD_R]) / 2
+    head_y_rotation = eyebrow_midpoint - mediapipe_xyz[def_constants.MP_NOSE]
+    head_y_rotation = head_y_rotation / np.linalg.norm(head_y_rotation)
     
     return [shoulder_L_rotation, 
             elbow_L_rotation, 
@@ -119,7 +128,9 @@ def convert_mediapipe_output_into_rotation_list(mediapipe_output):
             knee_R_rotation, 
             foot_R_rotation,
             root_x_rotation,
-            chest_x_rotation
+            chest_x_rotation,
+            head_x_rotation,
+            head_y_rotation
             ]
 
 def set_rotation_for_single_bone(target_armature_name, bone_name, vector):    
@@ -165,18 +176,18 @@ def MP_set_rotation_for_all_bones(armature_selector, mediapipe_output):
     rotation_list = convert_mediapipe_output_into_rotation_list(mediapipe_output)
     
     # set rotation of spines    
-    # spine_rotation_check = mediapipe_output[def_constants.MP_SHOULDER_R][def_constants.PRESENCE] > 0.5 and armature_selector.pelvis
-    # spine_rotation_check = spine_rotation_check and mediapipe_output[def_constants.MP_SHOULDER_L][def_constants.PRESENCE] > 0.5 and armature_selector.spine_0
-    # spine_rotation_check = spine_rotation_check and mediapipe_output[def_constants.MP_HIPS_L][def_constants.PRESENCE] > 0.5 and armature_selector.spine_1
-    # spine_rotation_check = spine_rotation_check and mediapipe_output[def_constants.MP_HIPS_R][def_constants.PRESENCE] > 0.5 and armature_selector.spine_2
+    spine_rotation_check = mediapipe_output[def_constants.MP_SHOULDER_R][def_constants.PRESENCE] > 0.5 and armature_selector.pelvis
+    spine_rotation_check = spine_rotation_check and mediapipe_output[def_constants.MP_SHOULDER_L][def_constants.PRESENCE] > 0.5 and armature_selector.spine_0
+    spine_rotation_check = spine_rotation_check and mediapipe_output[def_constants.MP_HIPS_L][def_constants.PRESENCE] > 0.5 and armature_selector.spine_1
+    spine_rotation_check = spine_rotation_check and mediapipe_output[def_constants.MP_HIPS_R][def_constants.PRESENCE] > 0.5 and armature_selector.spine_2
     
-
-    spine0_vector = lerp(rotation_list[def_constants.MP_ROOT_ROTATION], rotation_list[def_constants.MP_CHEST_ROTATION], 0.333)
-    spine1_vector = lerp(rotation_list[def_constants.MP_ROOT_ROTATION], rotation_list[def_constants.MP_CHEST_ROTATION], 0.666)
-    set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.pelvis, vector=rotation_list[def_constants.MP_ROOT_ROTATION])
-    set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_0, vector=spine0_vector)
-    set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_1, vector=spine1_vector)
-    set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_2, vector=rotation_list[def_constants.MP_CHEST_ROTATION])
+    if spine_rotation_check:
+        spine0_vector = lerp(rotation_list[def_constants.MP_ROOT_ROTATION], rotation_list[def_constants.MP_CHEST_ROTATION], 0.333)
+        spine1_vector = lerp(rotation_list[def_constants.MP_ROOT_ROTATION], rotation_list[def_constants.MP_CHEST_ROTATION], 0.666)
+        set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.pelvis, vector=rotation_list[def_constants.MP_ROOT_ROTATION])
+        set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_0, vector=spine0_vector)
+        set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_1, vector=spine1_vector)
+        set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.spine_2, vector=rotation_list[def_constants.MP_CHEST_ROTATION])
     
     # rotate shoudler
     if mediapipe_output[def_constants.MP_SHOULDER_L][def_constants.PRESENCE] > 0.5 and armature_selector.shoulder_L:
@@ -187,7 +198,6 @@ def MP_set_rotation_for_all_bones(armature_selector, mediapipe_output):
             bone.set_bone_rotation_around_world_space_vector([1, 0, 0], ease_in_out_lerp(0, -30, rotation_list[def_constants.MP_SHOULDER_L_ROTATION][def_constants.Z] / 0.2))
         else:
             bone.set_bone_rotation_around_world_space_vector([1, 0, 0], -30)
-            
     if mediapipe_output[def_constants.MP_SHOULDER_R][def_constants.PRESENCE] > 0.5 and armature_selector.shoulder_R:
         bone = def_Bone.Bone(bone_name=armature_selector.shoulder_R, armature_name=armature_selector.target_armature.name)
         if rotation_list[def_constants.MP_SHOULDER_R_ROTATION][def_constants.Z] > 0:
@@ -197,40 +207,34 @@ def MP_set_rotation_for_all_bones(armature_selector, mediapipe_output):
         else:
             bone.set_bone_rotation_around_world_space_vector([1, 0, 0], -30)
     
+    # Rotate Neck
+    if mediapipe_output[def_constants.MP_HEAD_L][def_constants.PRESENCE] > 0.5 and armature_selector.neck and mediapipe_output[def_constants.MP_HEAD_R][def_constants.PRESENCE] > 0.5:
+        set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.head, vector=rotation_list[def_constants.MP_HEAD_X_ROTATION])
+        set_face_direction_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.neck, vector=(rotation_list[def_constants.MP_HEAD_X_ROTATION] + rotation_list[def_constants.MP_CHEST_ROTATION])/2)
+    
     # align limbs to world vector
     if mediapipe_output[def_constants.MP_SHOULDER_L][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.upperarm_L, vector=rotation_list[def_constants.MP_SHOULDER_L_ROTATION])
-
     if mediapipe_output[def_constants.MP_ELBOW_L][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.forearm_L, vector=rotation_list[def_constants.MP_ELBOW_L_ROTATION])
-
     if mediapipe_output[def_constants.MP_HAND_L][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.hand_L, vector=rotation_list[def_constants.MP_HAND_L_ROTATION])
-
     if mediapipe_output[def_constants.MP_HIPS_L][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.thigh_L, vector=rotation_list[def_constants.MP_HIPS_L_ROTATION])
-
     if mediapipe_output[def_constants.MP_KNEES_L][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.shin_L, vector=rotation_list[def_constants.MP_KNEE_L_ROTATION])
-
     if mediapipe_output[def_constants.MP_TOE_L][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.foot_L, vector=rotation_list[def_constants.MP_FOOT_L_ROTATION])
-
     if mediapipe_output[def_constants.MP_SHOULDER_R][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.upperarm_R, vector=rotation_list[def_constants.MP_SHOULDER_R_ROTATION])
-
     if mediapipe_output[def_constants.MP_ELBOW_R][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.forearm_R, vector=rotation_list[def_constants.MP_ELBOW_R_ROTATION])
-
     if mediapipe_output[def_constants.MP_HAND_R][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.hand_R, vector=rotation_list[def_constants.MP_HAND_R_ROTATION])
-
     if mediapipe_output[def_constants.MP_HIPS_R][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.thigh_R, vector=rotation_list[def_constants.MP_HIPS_R_ROTATION])
-
     if mediapipe_output[def_constants.MP_KNEES_R][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.shin_R, vector=rotation_list[def_constants.MP_KNEE_R_ROTATION])
-
     if mediapipe_output[def_constants.MP_TOE_R][def_constants.PRESENCE] > 0.5:
         set_rotation_for_single_bone(target_armature_name=armature_selector.target_armature.name, bone_name=armature_selector.foot_R, vector=rotation_list[def_constants.MP_FOOT_R_ROTATION])
     
