@@ -1,6 +1,7 @@
 ## Pose Capture
 
 This is a Blender addon that helps you capture motions in a video and copy the motions to a rig!
+
 ![alt text](images/akali_demo.gif)
 
 ### Installation
