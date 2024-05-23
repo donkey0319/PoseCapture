@@ -30,3 +30,6 @@ The addon will be in the "data" properties. After installation, you would see a 
 There is a "Run on MP4 File" button in the tab. You could choose a video in your computer, and the program will automatically detect the pose of the video, and then copy the animation in the video to the armature selected.
 
 * Note: Press ESC to interrupt playing the video.
+
+#### Bugs:
+Please let me know!
