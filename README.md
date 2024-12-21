@@ -8,11 +8,11 @@ This is a Blender addon that helps you capture motions in a video and copy the m
 
 You can simply download this .zip file and select it through Edit -> Preferences -> Add-ons -> Install.
 
-However, this addon requires the cv2 and mediapipe libraries. There are several way to do this. You can open the "installations.py" included in Blender and run it. If this doesn't work, you can try the following ways:
+However, this addon requires the cv2 and mediapipe libraries. There are several ways to do this. You can open the "installations.py" included in Blender and run it. If this doesn't work, you can try the following ways:
 
 * Other Ways: 
-    - Create Conda Environment: https://medium.com/@yunqiguo/install-mediapipe-in-blender-d75177123410
-    - Using Pip: http://www.codeplastic.com/2019/03/12/how-to-install-python-modules-in-blender/
+    - Create Conda Environment: https://medium.com/@yunqiguo/install-mediapipe-in-blender-d75177123410 and install cv2 and mediapipe (version 0.10.5)
+      
 
 ### How to use
 ##### Step 1.  Select your armature and  retargeting bones.
