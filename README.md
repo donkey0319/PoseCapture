@@ -11,7 +11,11 @@ You can simply download this .zip file and select it through Edit -> Preferences
 However, this addon requires the cv2 and mediapipe libraries. There are several ways to do this. You can open the "installations.py" included in Blender and run it. If this doesn't work, you can try the following ways:
 
 * Other Ways: 
-    - Create Conda Environment: https://medium.com/@yunqiguo/install-mediapipe-in-blender-d75177123410 and install cv2 and mediapipe (version 0.10.5)
+    - Create Conda Environment: https://medium.com/@yunqiguo/install-mediapipe-in-blender-d75177123410
+        - python version: 3.9, blender version: 3.0
+        - pip install mediapipe (version 0.10.5)
+        - pip install opencv-python
+        - link python environment to blender python directory
       
 
 ### How to use
